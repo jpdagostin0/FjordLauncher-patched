@@ -328,18 +328,7 @@ void LaunchController::login()
 
         MinecraftAccountPtr accountToCheck;
 
-        if (m_accountToUse->ownsMinecraft())
-            accountToCheck = m_accountToUse;
-        else if (const MinecraftAccountPtr defaultAccount = APPLICATION->accounts()->defaultAccount();
-                 defaultAccount != nullptr && defaultAccount->ownsMinecraft()) {
-            accountToCheck = defaultAccount;
-        } else {
-            for (int i = 0; i < APPLICATION->accounts()->count(); i++) {
-                MinecraftAccountPtr account = APPLICATION->accounts()->at(i);
-                if (account->ownsMinecraft())
-                    accountToCheck = account;
-            }
-        }
+        accountToCheck = m_accountToUse;
 
         if (accountToCheck == nullptr) {
             if (!m_session->demo)

@@ -229,6 +229,8 @@ set(MINECRAFT_SOURCES
     minecraft/auth/AccountList.cpp
     minecraft/auth/AccountList.h
     minecraft/auth/AuthSession.cpp
+    minecraft/auth/LocalYggdrasilServer.cpp
+    minecraft/auth/LocalYggdrasilServer.h
     minecraft/auth/AuthSession.h
     minecraft/auth/AuthStep.h
     minecraft/auth/MinecraftAccount.cpp
@@ -1404,6 +1406,7 @@ target_link_libraries(Launcher_logic
     ${Launcher_QT_LIBS}
 )
 target_link_libraries(Launcher_logic
+    OpenSSL::Crypto
     cmark::cmark
     LocalPeer
     Launcher_rainbow

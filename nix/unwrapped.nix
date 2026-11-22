@@ -8,6 +8,7 @@
   kdePackages,
   libnbtplusplus,
   ninja,
+  openssl,
   pkg-config,
   qrencode,
   self,
@@ -83,6 +84,7 @@ stdenv.mkDerivation {
     kdePackages.qtnetworkauth
     qrencode
     libarchive
+    openssl
     tomlplusplus
     zlib
   ]

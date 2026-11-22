@@ -330,6 +330,8 @@ endif()
 
 find_package(ZLIB REQUIRED)
 
+find_package(OpenSSL REQUIRED COMPONENTS Crypto)
+
 
 include(ECMQtDeclareLoggingCategory)
 

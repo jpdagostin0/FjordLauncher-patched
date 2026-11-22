@@ -256,7 +256,8 @@ void AccountListPage::updateButtonStates()
     }
     ui->actionRemove->setEnabled(accountIsReady);
     ui->actionSetDefault->setEnabled(accountIsReady);
-    ui->actionManageSkins->setEnabled(accountIsReady && accountIsOnline && accountCanUploadSkins);
+    // Offline accounts keep their skin locally, so they can always change it.
+    ui->actionManageSkins->setEnabled(accountIsReady && (!accountIsOnline || accountCanUploadSkins));
     ui->actionRefresh->setEnabled(accountIsReady && accountIsOnline);
 
     if (m_accounts->defaultAccount().get() == nullptr) {

@@ -25,6 +25,7 @@
         "zstd"
       ]
     },
+    "openssl",
     "tomlplusplus",
     "zlib"
   ]

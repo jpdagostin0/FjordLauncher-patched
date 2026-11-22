@@ -41,6 +41,7 @@
 #include "minecraft/auth/AccountData.h"
 #include "minecraft/auth/AccountList.h"
 #include "settings/MissingYggdrasilAgentBehavior.h"
+#include "minecraft/auth/LocalYggdrasilServer.h"
 
 #include "net/NetUtils.h"
 #include "ui/InstanceWindow.h"
@@ -313,6 +314,13 @@ void LaunchController::login()
     m_session->launchMode = m_actualLaunchMode;
     m_accountToUse->fillSession(m_session);
 
+    if (m_accountToUse->accountType() == AccountType::Offline && !m_accountToUse->accountData()->minecraftProfile.skin.data.isEmpty()) {
+        // Serve the offline account's skin to the game through a local Yggdrasil API server.
+        if (!LocalYggdrasilServer::instance()->setupSession(m_accountToUse.get(), m_session.get())) {
+            qWarning() << "Could not set up the local skin server, launching without the offline skin";
+        }
+    }
+
     if (m_accountToUse->accountType() != AccountType::Offline) {
         if (m_actualLaunchMode == LaunchMode::Normal && !m_accountToUse->hasProfile()) {
             // Now handle setting up a profile name here...
@@ -394,7 +402,7 @@ void LaunchController::launchInstance()
         }
     }
 
-    if (m_accountToUse->usesCustomApiServers() || !authlibSupported) {
+    if (m_session->uses_custom_api_servers || !authlibSupported) {
         auto isAgentInstalled = [&](const QString& agentPrefix) -> bool {
             const auto& agents = inst->getPackProfile()->getProfile()->getAgents();
             for (const auto& agent : agents) {
@@ -452,7 +460,7 @@ void LaunchController::launchInstance()
                 msgBox.setWindowTitle(tr("Missing Yggdrasil agent"));
                 msgBox.setText(tr("No Yggdrasil agent is installed on this instance."));
                 QString informativeText;
-                if (!m_accountToUse->usesCustomApiServers()) {
+                if (!m_session->uses_custom_api_servers) {
                     informativeText =
                         tr("This Minecraft version does not support modern Yggdrasil API routes. "
                            "Loki is recommended to restore online functionality.");

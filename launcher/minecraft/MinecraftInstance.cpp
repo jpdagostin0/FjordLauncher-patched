@@ -715,7 +715,8 @@ QStringList MinecraftInstance::processAuthArgs(AuthSessionPtr session) const
         }
     }
     // https://github.com/FabricMC/fabric-loom/issues/915#issuecomment-1609154390
-    if (session->launchMode == LaunchMode::Offline && (v == "1.16.4" || v == "1.16.5")) {
+    // Skipped when a Yggdrasil agent is redirecting the API, e.g. to serve an offline account's skin.
+    if (session->launchMode == LaunchMode::Offline && !session->uses_custom_api_servers && (v == "1.16.4" || v == "1.16.5")) {
         QString invalid_url{ "https://invalid.invalid" };
         args << "-Dminecraft.api.env=custom";
         args << "-Dminecraft.api.auth.host=" + invalid_url;

@@ -288,6 +288,22 @@ void MinecraftAccount::fillSession(AuthSessionPtr session)
     session->authlib_injector_metadata = data.authlibInjectorMetadata;
 }
 
+void MinecraftAccount::setOfflineSkin(const QByteArray& png, const QString& variant)
+{
+    auto& skin = data.minecraftProfile.skin;
+    if (png.isEmpty()) {
+        skin = Skin();
+    } else {
+        const auto hash = QString::fromLatin1(QCryptographicHash::hash(png, QCryptographicHash::Sha256).toHex());
+        skin.id = hash;
+        // Never fetched; it only identifies the skin so the skin manager can match it.
+        skin.url = "offline-skin:" + hash;
+        skin.variant = variant;
+        skin.data = png;
+    }
+    emit changed();
+}
+
 void MinecraftAccount::decrementUses()
 {
     Usable::decrementUses();

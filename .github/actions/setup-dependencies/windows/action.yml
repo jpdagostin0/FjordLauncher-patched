@@ -81,6 +81,7 @@ runs:
           qrencode:p
           tomlplusplus:p
           libarchive:p
+          openssl:p
 
     - name: List pacman packages (MinGW)
       if: ${{ inputs.msystem != '' }}

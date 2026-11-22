@@ -190,6 +190,9 @@ class MinecraftAccount : public QObject, public Usable {
 
     void fillSession(AuthSessionPtr session);
 
+    //! Sets (or, with empty data, clears) the locally stored skin of an offline account.
+    void setOfflineSkin(const QByteArray& png, const QString& variant);
+
     QString lastError() const { return data.lastError(); }
 
    signals:

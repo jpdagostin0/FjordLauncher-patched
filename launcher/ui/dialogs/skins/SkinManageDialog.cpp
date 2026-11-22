@@ -205,8 +205,8 @@ QPixmap previewCape(QImage capeImage, bool elytra = false)
 
 void SkinManageDialog::setupCapes()
 {
-    // Capes are currently unsupported on authlib-injector accounts.
-    if (m_acct->accountType() == AccountType::AuthlibInjector) {
+    // Capes are currently unsupported on authlib-injector and offline accounts.
+    if (m_acct->accountType() == AccountType::AuthlibInjector || m_acct->accountType() == AccountType::Offline) {
         m_ui->capeCombo->setEnabled(false);
         return;
     }
@@ -309,14 +309,28 @@ void SkinManageDialog::accept()
     }
     auto path = skin->getPath();
 
-    ProgressDialog prog(this);
-    NetJob::Ptr skinUpload{ new NetJob(tr("Change skin"), APPLICATION->network(), 1) };
-
     if (!QFile::exists(path)) {
         CustomMessageBox::selectable(this, tr("Skin Upload"), tr("Skin file does not exist!"), QMessageBox::Warning)->exec();
         reject();
         return;
     }
+
+    if (m_acct->accountType() == AccountType::Offline) {
+        // Offline skins are stored with the account and served to the game by the launcher.
+        QFile file(path);
+        if (!file.open(QIODevice::ReadOnly)) {
+            CustomMessageBox::selectable(this, tr("Change Skin"), tr("Failed to read the skin file!"), QMessageBox::Warning)->exec();
+            reject();
+            return;
+        }
+        m_acct->setOfflineSkin(file.readAll(), skin->getModelString());
+        skin->setURL(m_acct->accountData()->minecraftProfile.skin.url);
+        QDialog::accept();
+        return;
+    }
+
+    ProgressDialog prog(this);
+    NetJob::Ptr skinUpload{ new NetJob(tr("Change skin"), APPLICATION->network(), 1) };
 
     switch (m_acct->accountType()) {
         case AccountType::MSA: {
@@ -329,7 +343,7 @@ void SkinManageDialog::accept()
             break;
         };
         case AccountType::Offline: {
-            qDebug() << "Unhandled account type: Offline";
+            Q_ASSERT(false);  // handled above
             reject();
             return;
         };
@@ -353,6 +367,12 @@ void SkinManageDialog::accept()
 
 void SkinManageDialog::on_resetBtn_clicked()
 {
+    if (m_acct->accountType() == AccountType::Offline) {
+        m_acct->setOfflineSkin({}, {});
+        QDialog::accept();
+        return;
+    }
+
     ProgressDialog prog(this);
     NetJob::Ptr skinReset{ new NetJob(tr("Reset skin"), APPLICATION->network(), 1) };
 
@@ -366,7 +386,7 @@ void SkinManageDialog::on_resetBtn_clicked()
             break;
         };
         case AccountType::Offline: {
-            qDebug() << "Unhandled account type: Offline";
+            Q_ASSERT(false);  // handled above
             reject();
             return;
         };
